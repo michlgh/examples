@@ -1,5 +1,5 @@
 # shell-tg-bot
-The bot runs scripts from the /data folder, please don't forget to make the script executable (chmod +x).
+A simple bot to run functions or scripts.
 
 Several CHAT_ID can be used to share a gap.
 
