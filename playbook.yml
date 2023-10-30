@@ -1,0 +1,24 @@
+---
+- name: Build Docker Image
+  hosts:
+  vars:
+  - container_name: shell-tgbot
+  - telegram_token: 
+  - telegram_chat_id: 
+  gather_facts: false
+  tasks:
+   - name: Create temporary directory
+     file: path=/tmp/{{container_name}} state=directory
+   - name: Transfer files to temporary directory
+     copy: src="{{item.src}}" dest="/tmp/{{container_name}}"
+     loop:
+     - {src: "./run"}
+     - {src: "./Dockerfile"}
+   - name: Build image, default tag latest
+     docker_image: name={{container_name}} source=build build=path=/tmp/{{container_name}}
+   - name: Create container use variables data 
+     docker_container: name={{container_name}} image={{container_name}} state=present recreate=true env="TOKEN={{telegram_token}}" env="CHAT_ID={{telegram_chat_id}}"
+   - name: Start container
+     docker_container: name={{container_name}} state=started
+   - name: Remove temporary directory
+     file: path=/tmp/{{container_name}} state=absent

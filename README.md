@@ -1,9 +1,11 @@
 # shell-tg-bot
-The bot runs scripts from the /data folder, please don't forget to make the script executable (chmod +x)
+The bot runs scripts from the /data folder, please don't forget to make the script executable (chmod +x).
 
-Several CHAT_ID can be used to share a gap
+Several CHAT_ID can be used to share a gap.
 
-The running file has `functions` you can create a file and place  functions there after being used in the commands
+The running file has `functions` you can create a file and place  functions there after being used in the commands.
+
+For more advanced use there is an ansible playbook `playbook.yml`, for use you need to specify three values: `hosts` `telegram_token` `telegram_chat_id`.
 
 [Link](https://hub.docker.com/repository/docker/mkovdk/shell-tgbot/general) to Docker Hub
 
