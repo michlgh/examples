@@ -17,7 +17,7 @@
    - name: Build image, default tag latest
      docker_image: name={{container_name}} source=build build=path=/tmp/{{container_name}}
    - name: Create container use variables data 
-     docker_container: name={{container_name}} image={{container_name}} state=present recreate=true env="TOKEN={{telegram_token}}" env="CHAT_ID={{telegram_chat_id}}"
+     docker_container: name={{container_name}} image={{container_name}} state=present recreate=true env="TOKEN={{telegram_token}} CHAT_ID={{telegram_chat_id}}"
    - name: Start container
      docker_container: name={{container_name}} state=started
    - name: Remove temporary directory
