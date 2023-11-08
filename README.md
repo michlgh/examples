@@ -1,4 +1,4 @@
-# shell-tg-bot
+# shell-tgbot
 A simple bot to run functions or scripts.
 
 Several CHAT_ID can be used to share a gap.
