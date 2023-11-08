@@ -7,7 +7,7 @@ The running file has `functions` you can create a file and place  functions ther
 
 For more advanced use there is an ansible playbook `playbook.yml`, for use you need to specify three values: `hosts` `telegram_token` `telegram_chat_id`.
 
-[Link](https://hub.docker.com/repository/docker/mkovdk/shell-tgbot/general) to Docker Hub
+[Link](https://hub.docker.com/r/mkovdk/shell-tgbot) to Docker Hub
 
 ## Usage
 
@@ -17,4 +17,4 @@ docker run -d --name shell-tg \
   -e TOKEN= \
   -e CHAT_ID= \
   --restart unless-stopped \
- mkovdk/shell-tg-bot
+ mkovdk/shell-tgbot
