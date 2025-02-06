@@ -1,0 +1,78 @@
+---
+- name: Set vm.max_map_count to at least 262144 # https://www.elastic.co/guide/en/elasticsearch/reference/current/docker.html#_set_vm_max_map_count_to_at_least_262144
+  ansible.posix.sysctl:
+    name: vm.max_map_count
+    value: '262144'
+    state: present
+
+- name: Run Elasticsearch Node 1
+  community.docker.docker_container:
+    # recreate: yes
+    name: elasticsearch-node1
+    hostname: elasticsearch-node1
+    image: elasticsearch:8.17.1
+    restart_policy: unless-stopped
+    env:
+      discovery.seed_hosts: "elasticsearch-node2"
+      cluster.initial_master_nodes: "elasticsearch-node1,elasticsearch-node2"
+      cluster.name: "{{cluster_name}}"
+      node.name: "elasticsearch-node1"
+      network.host: "0.0.0.0"
+      http.port: "9200"
+      transport.port: "9300"
+      # bootstrap.memory_lock: "true" # ansible is disabled or error start
+      xpack.security.enabled: "false"
+      xpack.ml.enabled: "false"
+      action.destructive_requires_name: "false"
+      ES_JAVA_OPTS: "-Xms{{container_memlimit_service}} -Xmx{{container_memlimit_service}}"
+    cpuset_cpus: "{{container_cpulimit}}"
+    memory: "{{container_memlimit}}"
+    published_ports:
+      - "9200:9200"
+    network_mode: "{{network}}"
+    volumes:
+      - "/{{dst}}/esdata1:/usr/share/elasticsearch/data"
+
+- name: Run Elasticsearch Node 2
+  community.docker.docker_container:
+    # recreate: yes
+    name: elasticsearch-node2
+    hostname: elasticsearch-node2
+    image: elasticsearch:8.17.1
+    restart_policy: unless-stopped
+    env:
+      discovery.seed_hosts: "elasticsearch-node1"
+      cluster.initial_master_nodes: "elasticsearch-node1,elasticsearch-node2"
+      cluster.name: "es-cluster"
+      node.name: "elasticsearch-node2"
+      network.host: "0.0.0.0"
+      http.port: "9200"
+      transport.port: "9300"
+      # bootstrap.memory_lock: "true" # ansible is disabled or error start
+      xpack.security.enabled: "false"
+      xpack.ml.enabled: "false"
+      action.destructive_requires_name: "false"
+      ES_JAVA_OPTS: "-Xms{{container_memlimit_service}} -Xmx{{container_memlimit_service}}"
+    cpuset_cpus: "{{container_cpulimit}}"
+    memory: "{{container_memlimit}}"
+    published_ports:
+      - "9201:9200"
+    network_mode: "{{network}}"
+    volumes:
+      - "/{{dst}}/esdata2:/usr/share/elasticsearch/data"
+
+- name: Run Kibana
+  community.docker.docker_container:
+    name: kibana
+    hostname: kibana
+    image: kibana:8.17.1
+    restart_policy: unless-stopped
+    env:
+      SERVER_NAME: "kibana"
+      ELASTICSEARCH_HOSTS: "http://elasticsearch-node1:9200"
+      ES_JAVA_OPTS: "-Xms{{container_memlimit_service}} -Xmx{{container_memlimit_service}}"
+    cpuset_cpus: "{{container_cpulimit}}"
+    memory: "{{container_memlimit}}"
+    ports:
+      - "5601:5601"
+    network_mode: "{{network}}"

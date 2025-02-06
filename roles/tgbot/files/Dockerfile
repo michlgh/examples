@@ -4,6 +4,6 @@ RUN apt update && apt install --no-install-recommends -y curl jq && apt clean &&
 
 WORKDIR /app
 
-COPY run /app
+COPY run.sh /app
 
-CMD ["bash", "/app/run"]
+CMD ["bash", "/app/run.sh"]

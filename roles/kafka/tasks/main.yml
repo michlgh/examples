@@ -1,0 +1,65 @@
+---
+- name: Run Zookeeper
+  community.docker.docker_container:
+    name: zookeeper
+    image: confluentinc/cp-zookeeper:latest
+    restart_policy: unless-stopped
+    env:
+      ZOOKEEPER_CLIENT_PORT: "2181"
+      ZOOKEEPER_TICK_TIME: "2000"
+    ports:
+      - "2181:2181"
+    network_mode: cnet
+
+- name: Run Kafka Broker 1
+  community.docker.docker_container:
+    name: kafka1
+    image: confluentinc/cp-kafka:latest
+    restart_policy: unless-stopped
+    env:
+      KAFKA_NODE_ID: "1"
+      KAFKA_BROKER_ID: "1"
+      KAFKA_ZOOKEEPER_CONNECT: "zookeeper:2181"
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: "PLAINTEXT:PLAINTEXT"
+      KAFKA_ADVERTISED_LISTENERS: "PLAINTEXT://kafka1:9092"
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: "1"
+      KAFKA_LOG_DIRS: "/var/lib/kafka/data"
+    cpuset_cpus: 2
+    ports:
+      - "9092:9092"
+    network_mode: "{{network}}"
+    volumes:
+      - "/{{dst}}/kafka1-data:/var/lib/kafka/data"
+
+- name: Run Kafka Broker 2
+  community.docker.docker_container:
+    name: kafka2
+    image: confluentinc/cp-kafka:latest
+    restart_policy: unless-stopped
+    env:
+      KAFKA_NODE_ID: "2"
+      KAFKA_BROKER_ID: "2"
+      KAFKA_ZOOKEEPER_CONNECT: "zookeeper:2181"
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: "PLAINTEXT:PLAINTEXT"
+      KAFKA_ADVERTISED_LISTENERS: "PLAINTEXT://kafka2:9093"
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: "1"
+      KAFKA_LOG_DIRS: "/var/lib/kafka/data"
+    cpuset_cpus: 2
+    ports:
+      - "9093:9093"
+    network_mode: "{{network}}"
+    volumes:
+      - "/{{dst}}/kafka2-data:/var/lib/kafka/data"
+
+- name: Run Kafka UI
+  community.docker.docker_container:
+    name: kafka-ui
+    image: provectuslabs/kafka-ui:latest
+    restart_policy: unless-stopped
+    env:
+      KAFKA_CLUSTERS_0_NAME: "local"
+      KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS: "kafka1:9092,kafka2:9093"
+    cpuset_cpus: 2
+    ports:
+      - "8080:8080"
+    network_mode: "{{network}}"

@@ -1,24 +1,22 @@
----
-- name: Build Docker Image
-  hosts:
+- hosts: all
+  gather_facts: true
+  become: true
   vars:
-  - container_name: shell-tgbot
-  - telegram_token: 
-  - telegram_chat_id: 
-  gather_facts: false
-  tasks:
-   - name: Create temporary directory
-     file: path=/tmp/{{container_name}} state=directory
-   - name: Transfer files to temporary directory
-     copy: src="{{item.src}}" dest="/tmp/{{container_name}}"
-     loop:
-     - {src: "./run"}
-     - {src: "./Dockerfile"}
-   - name: Build image, default tag latest
-     docker_image: name={{container_name}} source=build build=path=/tmp/{{container_name}}
-   - name: Create container use variables data 
-     docker_container: name={{container_name}} image={{container_name}} state=present recreate=true env="TOKEN={{telegram_token}} CHAT_ID={{telegram_chat_id}}"
-   - name: Start container
-     docker_container: name={{container_name}} state=started
-   - name: Remove temporary directory
-     file: path=/tmp/{{container_name}} state=absent
+    network: <задать имя сети docker>
+    dst: <задать имя директории где будут храниться файлы>
+  roles:
+  - role: kafka
+    tags: kafka
+  - role: elastic
+    vars:
+      container_cpulimit: "2"
+      container_memlimit: "512m"
+      container_memlimit_service: "256m"
+      cluster_name: "es-cluster"
+    tags: elastic
+  - role: tgbot
+    vars:
+      token: <задать token>
+      chat_id: <задать id разрешнных пользователей>
+      my_docker_image_name: tgbot
+    tags: tgbot

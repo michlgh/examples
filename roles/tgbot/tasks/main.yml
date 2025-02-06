@@ -1,0 +1,32 @@
+- name: Copy Dockerfile and run.sh to the host
+  copy:
+    src: "{{item}}"
+    dest: "/tmp/{{item}}"
+  with_items:
+    - Dockerfile
+    - run.sh
+
+- name: Build Docker image
+  docker_image:
+    build:
+      path: /tmp
+    name: "{{my_docker_image_name}}"
+    source: build
+
+- name: Run Docker container
+  docker_container:
+    name: "{{my_docker_image_name}}"
+    image: "{{my_docker_image_name}}"
+    state: started
+    restart_policy: always
+    env:
+      TOKEN: "{{token}}"
+      CHAT_ID: "{{chat_id}}"
+
+- name: Clean up temporary files
+  file:
+    path: "/tmp/{{item}}"
+    state: absent
+  with_items:
+    - Dockerfile
+    - run.sh
